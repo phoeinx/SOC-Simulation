@@ -1,22 +1,22 @@
 ######################################################################################################################
-# 
-#  RothC python version    
+#
+#  RothC python version
 #
 #  This python version was translated from the Fortran code by Alice Milne, Jonah Prout and Kevin Coleman 29/02/2024
 #
 #  The Rothamsted Carbon Model: RothC
 #  Developed by David Jenkinson and Kevin Coleman
 #
-#  INPUTS: 
+#  INPUTS:
 #
 #  clay:  clay content of the soil (units: %)
 #  depth: depth of topsoil (units: cm)
 #  IOM: inert organic matter (t C /ha)
-#  nsteps: number of timesteps 
+#  nsteps: number of timesteps
 #
 #  year:    year
 #  month:   month (1-12)
-#  modern:   %modern 
+#  modern:   %modern
 #  TMP:      Air temperature (C)
 #  Rain:     Rainfall (mm)
 #  Evap:     open pan evaporation (mm)
@@ -27,7 +27,7 @@
 #
 #  OUTPUTS:
 #
-#  All pools are carbon and not organic matter 
+#  All pools are carbon and not organic matter
 #
 #  DPM:   Decomposable Plant Material (units: t C /ha)
 #  RPM:   Resistant Plant Material    (units: t C /ha)
@@ -270,10 +270,9 @@ def RothC(timeFact, DPM,RPM,BIO,HUM,IOM, SOC, DPM_Rage, RPM_Rage, BIO_Rage, HUM_
 # program RothC_Python
 import os
 print(os.getcwd())
-os.chdir(["INPUT DIRECTORY PATH") # Change to path of RothC_input.dat
 print(os.getcwd())
-   
-# set initial pool values   
+
+# set initial pool values
 DPM = [0.0]
 RPM = [0.0]
 BIO = [0.0]
@@ -286,10 +285,10 @@ BIO_Rage = [0.0]
 HUM_Rage = [0.0]
 IOM_Rage = [50000.0]  
 
-# set initial soil water content (deficit) 
+# set initial soil water content (deficit)
 SWC = [0.0]
 TOC1=0.0
-   
+
 # read in RothC input data file
 df_head = df_head = pd.read_csv('RothC_input.dat', skiprows = 3, header = 0, nrows = 1, index_col=None, delim_whitespace=True) 
 clay = df_head.loc[0,"clay"]
@@ -299,18 +298,18 @@ nsteps = df_head.loc[0,"nsteps"]
 df = pd.read_csv('RothC_input.dat', skiprows = 6, header = 0, index_col=None, delim_whitespace=True)
 print (df)
 df.columns =['t_year', 't_month', 't_mod', 't_tmp','t_rain','t_evap', 't_C_Inp', 't_FYM_Inp', 't_PC', 't_DPM_RPM']
-  
-       
-# run RothC to equilibrium     
+
+
+# run RothC to equilibrium
 k = -1
 j = -1
-      
+
 SOC[0] = DPM[0]+RPM[0]+BIO[0]+HUM[0]+IOM[0]
 
 print (j, DPM[0], RPM[0], BIO[0], HUM[0], IOM[0], SOC[0])
 
 timeFact = 12
-    
+
 test = 100.0
 while (test > 1E-6):
     k = k + 1
@@ -341,9 +340,9 @@ while (test > 1E-6):
         TOC0 = TOC1
         TOC1 =DPM[0]+RPM[0]+BIO[0]+HUM[0]
         test = abs(TOC1-TOC0)            
-         
+
 Total_Delta = (np.exp(-Total_Rage[0]/8035.0) - 1.0) * 1000.0     
-      
+
 print( j, DPM[0], RPM[0], BIO[0], HUM[0], IOM[0], SOC[0], Total_Delta)
 
 year_list = [[1, j+1, DPM[0], RPM[0], BIO[0], HUM[0], IOM[0], SOC[0], Total_Delta[0]]]
@@ -383,4 +382,3 @@ output_months = pd.DataFrame(month_list, columns=["Year","Month","DPM_t_C_ha","R
 
 output_years.to_csv("year_results.csv", index = False)
 output_months.to_csv("month_results.csv", index = False)
-
